@@ -8,7 +8,7 @@ import { ApiExtractIngredients } from './swagger-decorator/extract-ingredients.d
 import { ApiGetAdviseFromChemist } from './swagger-decorator/get-advise-from-chemist.decorator';
 import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('ChatGpt')
+@ApiTags('만번 깎은 GPT')
 @Controller('chat-gpt')
 export class ChatGptController {
   constructor(private readonly chatGptService: ChatGptService) {}
