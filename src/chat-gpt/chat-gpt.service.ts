@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai';
 import { GetAdviseDto } from './dto/get-advise.dto';
-import { NutritionistResponse } from './interface/interface';
+import { ChemistResponse, NutritionistResponse } from './interface/interface';
 import { ExtractIngredientsDto } from './dto/extract-ingredients-dto';
 import { ExtractTarget } from './enum/enum';
 
@@ -16,6 +16,7 @@ export class ChatGptService {
   private extractorNutritionistSetup: string;
   private chemistSystemSetup: string;
   private extractorChemistSetup: string;
+  private chemistUserSetup: string;
 
   constructor(private readonly configService: ConfigService) {
     const configuration = new Configuration({
@@ -38,6 +39,7 @@ export class ChatGptService {
     this.extractorChemistSetup = configService.get<string>(
       'EXTRACTOR_CHEMIST_SETUP',
     );
+    this.chemistUserSetup = configService.get<string>('CHEMIST_USER_SETUP');
   }
 
   async getAdviseFromNutritionist(
@@ -66,7 +68,7 @@ export class ChatGptService {
       },
       {
         role: 'user',
-        content: `diseases:${getAdviseDto.diseases},ingredients: ${getAdviseDto.ingredients}`,
+        content: `diseases:${getAdviseDto.diseases}, ingredients:${getAdviseDto.ingredients}`,
       },
     ];
 
@@ -143,5 +145,38 @@ export class ChatGptService {
     } catch (error) {
       throw new InternalServerErrorException(`서버 연결 오류입니다.`);
     }
+  }
+
+  async getAdviseFromChemist(
+    getAdviseDto: GetAdviseDto,
+  ): Promise<ChemistResponse[]> {
+    const messages: ChatCompletionRequestMessage[] =
+      this.createChemistRequestMessages(getAdviseDto);
+
+    const answer: ChemistResponse[] = await this.fetchChatGptResponse(messages);
+
+    return answer;
+  }
+
+  private createChemistRequestMessages(
+    getAdviseDto: GetAdviseDto,
+  ): ChatCompletionRequestMessage[] {
+    const messages: ChatCompletionRequestMessage[] = [
+      {
+        role: 'system',
+        content: this.chemistSystemSetup,
+      },
+      { role: 'user', content: this.chemistUserSetup },
+      {
+        role: 'assistant',
+        content: this.assistantSetup,
+      },
+      {
+        role: 'user',
+        content: `diseases:${getAdviseDto.diseases},ingredients: ${getAdviseDto.ingredients}`,
+      },
+    ];
+
+    return messages;
   }
 }

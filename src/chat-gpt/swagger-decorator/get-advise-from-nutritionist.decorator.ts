@@ -10,6 +10,8 @@ export function ApiGetAdviseFromNutritionist() {
       description: '질병[] , 원재료명[] 전달',
     }),
     ApiBody({
+      description:
+        'ingredients 예시 중 하나만 선택하여 테스트를 진행해 주세요.',
       type: GetAdviseDto,
     }),
     ApiOkResponse(
