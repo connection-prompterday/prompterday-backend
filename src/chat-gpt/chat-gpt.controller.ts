@@ -41,7 +41,7 @@ export class ChatGptController {
     @Body() getAdviseDto: GetAdviseDto,
   ): Promise<ChemistResponse[]> {
     const response: ChemistResponse[] =
-      await this.chatGptService.getAdviseFromNutritionist(getAdviseDto);
+      await this.chatGptService.getAdviseFromChemist(getAdviseDto);
 
     return response;
   }

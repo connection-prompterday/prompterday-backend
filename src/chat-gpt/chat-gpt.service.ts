@@ -8,7 +8,11 @@ import { ExtractTarget } from './enum/enum';
 
 @Injectable()
 export class ChatGptService {
-  private openAi: OpenAIApi;
+  private openAiOne: OpenAIApi;
+  private openAiTwo: OpenAIApi;
+  private openAiThree: OpenAIApi;
+  private openAiFour: OpenAIApi;
+
   private openAiModel: string;
   private nutritionistSystemSetup: string;
   private nutritionistUserSetup: string;
@@ -19,11 +23,24 @@ export class ChatGptService {
   private chemistUserSetup: string;
 
   constructor(private readonly configService: ConfigService) {
-    const configuration = new Configuration({
-      apiKey: configService.get<string>('OPENAI_SECRET_KEY'),
+    const openAiOneConfig = new Configuration({
+      apiKey: configService.get<string>('OPENAI_SECRET_KEY_KIM'),
+    });
+    const openAiTwoConfig = new Configuration({
+      apiKey: configService.get<string>('OPENAI_SECRET_KEY_LEE'),
+    });
+    const openAiThreeConfig = new Configuration({
+      apiKey: configService.get<string>('OPENAI_SECRET_KEY_SUA'),
+    });
+    const openAiFourConfig = new Configuration({
+      apiKey: configService.get<string>('OPENAI_SECRET_KEY_EUN'),
     });
 
-    this.openAi = new OpenAIApi(configuration);
+    this.openAiOne = new OpenAIApi(openAiOneConfig);
+    this.openAiTwo = new OpenAIApi(openAiTwoConfig);
+    this.openAiThree = new OpenAIApi(openAiThreeConfig);
+    this.openAiFour = new OpenAIApi(openAiFourConfig);
+
     this.openAiModel = configService.get<string>('OPENAI_MODEL');
     this.nutritionistSystemSetup = configService.get<string>(
       'NUTRITIONIST_SYSTEM_SETUP',
@@ -45,18 +62,48 @@ export class ChatGptService {
   async getAdviseFromNutritionist(
     getAdviseDto: GetAdviseDto,
   ): Promise<NutritionistResponse[]> {
-    const messages: ChatCompletionRequestMessage[] =
+    const messages: ChatCompletionRequestMessage[][] =
       this.createNutritionistRequestMessages(getAdviseDto);
+
     const answer: NutritionistResponse[] =
-      await this.fetchChatGptResponse(messages);
+      await this.fetchChatGptAdvise(messages);
 
     return answer;
   }
 
+  private splitIngredients(ingredients: string[]): string[][] {
+    if (ingredients.length <= 3) {
+      return [ingredients];
+    }
+
+    let numberOfArrays = 2;
+
+    if (ingredients.length >= 12) {
+      //요소가 12개 이상일때부터 모델 4개 사용
+      numberOfArrays = 4;
+    } else if (ingredients.length >= 9) {
+      numberOfArrays = 3;
+    }
+    const totalIngredients = ingredients.length;
+    const ingredientsPerArray = Math.ceil(totalIngredients / numberOfArrays);
+
+    const splitArrays: string[][] = [];
+    for (let i = 0; i < numberOfArrays; i++) {
+      const startIndex = i * ingredientsPerArray;
+      const endIndex = startIndex + ingredientsPerArray;
+      const newArray = ingredients.slice(startIndex, endIndex);
+      splitArrays.push(newArray);
+    }
+
+    return splitArrays;
+  }
+
   private createNutritionistRequestMessages(
     getAdviseDto: GetAdviseDto,
-  ): ChatCompletionRequestMessage[] {
-    const messages: ChatCompletionRequestMessage[] = [
+  ): ChatCompletionRequestMessage[][] {
+    const ingredients = getAdviseDto.ingredients.flat();
+
+    const baseMessages: ChatCompletionRequestMessage[] = [
       {
         role: 'system',
         content: this.nutritionistSystemSetup,
@@ -66,13 +113,35 @@ export class ChatGptService {
         role: 'assistant',
         content: this.assistantSetup,
       },
-      {
-        role: 'user',
-        content: `diseases:${getAdviseDto.diseases}, ingredients:${getAdviseDto.ingredients}`,
-      },
     ];
+    const splitMessages: ChatCompletionRequestMessage[][] =
+      this.createSplitMessages(getAdviseDto, ingredients, baseMessages);
+    return splitMessages;
+  }
 
-    return messages;
+  private createSplitMessages(
+    getAdviseDto: GetAdviseDto,
+    ingredients: string[],
+    baseMessages: ChatCompletionRequestMessage[],
+  ) {
+    const splitIngredientArrays = this.splitIngredients(ingredients);
+
+    const splitMessages: ChatCompletionRequestMessage[][] = [];
+
+    for (const splitIngredientArray of splitIngredientArrays) {
+      if (splitIngredientArray.length) {
+        const messages: ChatCompletionRequestMessage[] = [
+          ...baseMessages,
+          {
+            role: 'user',
+            content: `diseases:${getAdviseDto.diseases}, ingredients:${splitIngredientArray}`,
+          },
+        ];
+        splitMessages.push(messages);
+      }
+    }
+
+    return splitMessages;
   }
 
   async extractIngredients(extractIngredientsDto: ExtractIngredientsDto) {
@@ -80,7 +149,7 @@ export class ChatGptService {
       this.createExtractRequestMessage(extractIngredientsDto);
 
     const extractedIngredients: string[] =
-      await this.fetchChatGptResponse(messages);
+      await this.fetchChatGptExtractedIngredients(messages);
 
     return extractedIngredients;
   }
@@ -127,41 +196,105 @@ export class ChatGptService {
     }
   }
 
-  private async fetchChatGptResponse(messages) {
+  private async fetchChatGptExtractedIngredients(messages) {
     try {
-      const response = await this.openAi.createChatCompletion({
+      const response = await this.openAiOne.createChatCompletion({
         model: this.openAiModel,
         messages: messages,
         temperature: 0,
         max_tokens: 2000,
       });
+      const messageContent = response.data.choices[0].message.content;
 
-      if (response.data.choices[0].message) {
+      if (this.isValidJson(messageContent)) {
         const answer = response.data.choices[0].message.content;
+
         const parsedAnswer = JSON.parse(answer);
 
         return parsedAnswer;
+      } else {
+        return messageContent;
       }
     } catch (error) {
-      throw new InternalServerErrorException(`서버 연결 오류입니다.`);
+      throw error;
+    }
+  }
+
+  private isValidJson(jsonString) {
+    try {
+      JSON.parse(jsonString);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private async createModelResponse(openAiInstance, messages) {
+    const response = await openAiInstance.createChatCompletion({
+      model: this.openAiModel,
+      messages,
+      temperature: 0,
+      max_tokens: 2000,
+    });
+
+    return JSON.parse(response.data.choices[0].message.content);
+  }
+
+  private async fetchChatGptAdvise(messages) {
+    try {
+      let openAiInstances: OpenAIApi[] = [this.openAiOne];
+
+      if (messages.length === 2) {
+        console.log(2);
+
+        openAiInstances = [this.openAiOne, this.openAiTwo];
+      }
+      if (messages.length === 3) {
+        console.log(3);
+
+        openAiInstances = [this.openAiOne, this.openAiTwo, this.openAiThree];
+      }
+
+      if (messages.length === 4) {
+        console.log(4);
+
+        openAiInstances = [
+          this.openAiOne,
+          this.openAiTwo,
+          this.openAiThree,
+          this.openAiFour,
+        ];
+      }
+
+      const modelResponses = await Promise.all(
+        messages.map((msg, index) =>
+          this.createModelResponse(openAiInstances[index], msg),
+        ),
+      );
+
+      return modelResponses.flat();
+    } catch (error) {
+      console.log(error.response);
     }
   }
 
   async getAdviseFromChemist(
     getAdviseDto: GetAdviseDto,
   ): Promise<ChemistResponse[]> {
-    const messages: ChatCompletionRequestMessage[] =
+    const messages: ChatCompletionRequestMessage[][] =
       this.createChemistRequestMessages(getAdviseDto);
 
-    const answer: ChemistResponse[] = await this.fetchChatGptResponse(messages);
+    const answer: ChemistResponse[] = await this.fetchChatGptAdvise(messages);
 
     return answer;
   }
 
   private createChemistRequestMessages(
     getAdviseDto: GetAdviseDto,
-  ): ChatCompletionRequestMessage[] {
-    const messages: ChatCompletionRequestMessage[] = [
+  ): ChatCompletionRequestMessage[][] {
+    const ingredients = getAdviseDto.ingredients.flat();
+
+    const baseMessages: ChatCompletionRequestMessage[] = [
       {
         role: 'system',
         content: this.chemistSystemSetup,
@@ -171,12 +304,10 @@ export class ChatGptService {
         role: 'assistant',
         content: this.assistantSetup,
       },
-      {
-        role: 'user',
-        content: `diseases:${getAdviseDto.diseases},ingredients: ${getAdviseDto.ingredients}`,
-      },
     ];
 
-    return messages;
+    const splitMessages: ChatCompletionRequestMessage[][] =
+      this.createSplitMessages(getAdviseDto, ingredients, baseMessages);
+    return splitMessages;
   }
 }
