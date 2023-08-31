@@ -217,15 +217,6 @@ export class ChatGptService {
     }
   }
 
-  private isValidJson(jsonString) {
-    try {
-      JSON.parse(jsonString);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
   private async createModelResponse(openAiInstance, messages) {
     const response = await openAiInstance.createChatCompletion({
       model: this.openAiModel,
