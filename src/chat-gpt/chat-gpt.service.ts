@@ -205,11 +205,17 @@ export class ChatGptService {
         max_tokens: 2000,
       });
       try {
-        const messageContent = response.data.choices[0].message.content;
-        const parsedAnswer = JSON.parse(messageContent);
+        console.log(response.data.choices[0].message.content);
+
+        const parsedAnswer = JSON.parse(
+          response.data.choices[0].message.content,
+        );
+        console.log(parsedAnswer);
 
         return parsedAnswer;
       } catch (error) {
+        console.log(error);
+
         return null;
       }
     } catch (error) {
