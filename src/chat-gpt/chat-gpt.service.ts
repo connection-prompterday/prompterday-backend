@@ -204,28 +204,16 @@ export class ChatGptService {
         temperature: 0,
         max_tokens: 2000,
       });
-      const messageContent = response.data.choices[0].message.content;
-
-      if (this.isValidJson(messageContent)) {
-        const answer = response.data.choices[0].message.content;
-
-        const parsedAnswer = JSON.parse(answer);
+      try {
+        const messageContent = response.data.choices[0].message.content;
+        const parsedAnswer = JSON.parse(messageContent);
 
         return parsedAnswer;
-      } else {
-        return messageContent;
+      } catch (error) {
+        return null;
       }
     } catch (error) {
       throw error;
-    }
-  }
-
-  private isValidJson(jsonString) {
-    try {
-      JSON.parse(jsonString);
-      return true;
-    } catch (error) {
-      return false;
     }
   }
 
