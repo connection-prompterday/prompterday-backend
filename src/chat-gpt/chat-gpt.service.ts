@@ -212,7 +212,9 @@ export class ChatGptService {
 
       return parsedAnswer;
     } catch (error) {
-      if (error.response.status === 400) {
+      if (!error.response.status) {
+        throw new InternalServerErrorException(error);
+      } else if (error.response.status === 400) {
         throw new BadRequestException(
           `잘못된 요청입니다. 입력값을 확인 하세요`,
         );
@@ -269,7 +271,9 @@ export class ChatGptService {
 
       return modelResponses.flat();
     } catch (error) {
-      if (error.response.status === 400) {
+      if (!error.response.status) {
+        throw new InternalServerErrorException(error);
+      } else if (error.response.status === 400) {
         throw new BadRequestException(
           `잘못된 요청입니다. 입력값을 확인 하세요`,
         );
