@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai';
 import { GetAdviseDto } from './dto/get-advise.dto';
@@ -204,34 +208,37 @@ export class ChatGptService {
         temperature: 0,
         max_tokens: 2000,
       });
-      try {
-        console.log(response.data.choices[0].message.content);
+      const parsedAnswer = JSON.parse(response.data.choices[0].message.content);
 
-        const parsedAnswer = JSON.parse(
-          response.data.choices[0].message.content,
-        );
-        console.log(parsedAnswer);
-
-        return parsedAnswer;
-      } catch (error) {
-        console.log(error);
-
-        return null;
-      }
+      return parsedAnswer;
     } catch (error) {
-      throw error;
+      if (error.response.status === 400) {
+        throw new BadRequestException(
+          `잘못된 요청입니다. 입력값을 확인 하세요`,
+        );
+      } else if (error.response.status === 502) {
+        throw new InternalServerErrorException(`잠시 후 다시 시도해 주세요.`);
+      } else {
+        throw new InternalServerErrorException(
+          `status code: ${error.response.status} error message: ${error.response.statusText}`,
+        );
+      }
     }
   }
 
   private async createModelResponse(openAiInstance, messages) {
-    const response = await openAiInstance.createChatCompletion({
-      model: this.openAiModel,
-      messages,
-      temperature: 0,
-      max_tokens: 2000,
-    });
+    try {
+      const response = await openAiInstance.createChatCompletion({
+        model: this.openAiModel,
+        messages,
+        temperature: 0,
+        max_tokens: 2000,
+      });
 
-    return JSON.parse(response.data.choices[0].message.content);
+      return JSON.parse(response.data.choices[0].message.content);
+    } catch (error) {
+      throw error;
+    }
   }
 
   private async fetchChatGptAdvise(messages) {
@@ -239,19 +246,13 @@ export class ChatGptService {
       let openAiInstances: OpenAIApi[] = [this.openAiOne];
 
       if (messages.length === 2) {
-        console.log(2);
-
         openAiInstances = [this.openAiOne, this.openAiTwo];
       }
       if (messages.length === 3) {
-        console.log(3);
-
         openAiInstances = [this.openAiOne, this.openAiTwo, this.openAiThree];
       }
 
       if (messages.length === 4) {
-        console.log(4);
-
         openAiInstances = [
           this.openAiOne,
           this.openAiTwo,
@@ -268,7 +269,17 @@ export class ChatGptService {
 
       return modelResponses.flat();
     } catch (error) {
-      console.log(error.response);
+      if (error.response.status === 400) {
+        throw new BadRequestException(
+          `잘못된 요청입니다. 입력값을 확인 하세요`,
+        );
+      } else if (error.response.status === 502) {
+        throw new InternalServerErrorException(`잠시 후 다시 시도해 주세요.`);
+      } else {
+        throw new InternalServerErrorException(
+          `status code: ${error.response.status} error message: ${error.response.statusText}`,
+        );
+      }
     }
   }
 
