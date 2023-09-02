@@ -19,5 +19,10 @@ jobs:
       with:
         node-version: 16.x
         cache: 'npm'
-    - run: npm ci
-    - run: npm run start:dev
+        
+    - name: Install Backend-Server
+      run: npm ci
+
+    - name: Compile Backend-Server
+      run: npm run build
+      
