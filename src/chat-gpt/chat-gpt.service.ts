@@ -208,12 +208,13 @@ export class ChatGptService {
         temperature: 0,
         max_tokens: 2000,
       });
+
       const parsedAnswer = JSON.parse(response.data.choices[0].message.content);
 
       return parsedAnswer;
     } catch (error) {
-      if (!error.response.status) {
-        throw new InternalServerErrorException(error);
+      if (!error.response) {
+        throw new BadRequestException(`성분을 인식하지 못했습니다.`);
       } else if (error.response.status === 400) {
         throw new BadRequestException(
           `잘못된 요청입니다. 입력값을 확인 하세요`,
@@ -271,8 +272,10 @@ export class ChatGptService {
 
       return modelResponses.flat();
     } catch (error) {
-      if (!error.response.status) {
-        throw new InternalServerErrorException(error);
+      if (!error.response) {
+        throw new BadRequestException(
+          `잘못된 요청입니다. 입력값을 확인 하세요`,
+        );
       } else if (error.response.status === 400) {
         throw new BadRequestException(
           `잘못된 요청입니다. 입력값을 확인 하세요`,
