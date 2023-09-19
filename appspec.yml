@@ -5,15 +5,8 @@ files:
     destination: /home/ubuntu/backend # S3에서 가져온 파일을 저장할 위치.
     overwrite: yes # 덮어쓰기를 허용하는 옵션.
 
-# files에서 가져온 파일들에게 권한을 어떻게 적용해야하는지 지정.
-permissions:
-  - object: /
-    pattern: '**'
-    owner: ubuntu
-    group: ubuntu
-
 hooks:
   AfterInstall: # LifeCycle Event Hook의 이름
     - location: scripts/execute.sh # 스크립트의 위치입니다. files.destination에 정의한 경로에 대한 상대경로
       timeout: 600 # 스크립트 실행시, 여기에 지정된 시간을 초과하면 안됨. 최대 3600초
-      runas: ubuntu # 스크립트 실행 시 가장하는 사용자입니다.
+      runas: root # 스크립트 실행 시 가장하는 사용자입니다.
