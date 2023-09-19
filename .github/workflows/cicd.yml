@@ -26,15 +26,18 @@ jobs:
 
     - name: Compile Backend-Server
       run: npm run build
+
+          #"node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*" 파일 제외 후 레퍼지토 압축
+    - name: Make a zip file
+      run: zip -r ./$GITHUB_SHA.zip . -x "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*"
+      shell: bash
+
+      
   deploy:
     needs: build
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-    #"node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*" 파일 제외 후 레퍼지토 압축
-    - name: Make a zip file
-      run: zip -r ./$GITHUB_SHA.zip . -x "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*"
-      shell: bash
 
     #AWS 자격 증명 수행
     - name: Configure AWS credentials
