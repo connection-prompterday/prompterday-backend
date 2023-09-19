@@ -32,7 +32,7 @@ jobs:
         echo "OPENAI_SECRET_KEY_EUN=${{ secrets.OPENAI_SECRET_KEY_EUN }}" >> .env      
         echo "OPENAI_SECRET_KEY_KIM=${{ secrets.OPENAI_SECRET_KEY_KIM }}" >> .env
         echo "OPENAI_ORGANIZATION_KEY=${{ secrets.OPENAI_ORGANIZATION_KEY }}" >> .env
-        
+      
         cat .env
 
     - name: Install Backend-Server
