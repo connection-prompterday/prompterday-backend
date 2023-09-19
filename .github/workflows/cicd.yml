@@ -52,3 +52,4 @@ env:
   PROJECT_NAME: server-file # S3 버킷 내 폴더 이름 임의로 지정 가능
   AWS_CODEDEPLOY_APPLICATION_NAME: code-deploy # CodeDeploy 애플리케이션 이름
   AWS_CODEDEPLOY_DEPLOYMENT_GROUP_NAME: code-deploy-group # CodeDeploy 배포 그룹 이름
+
