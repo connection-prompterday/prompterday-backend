@@ -20,7 +20,23 @@ jobs:
       with:
         node-version: 18.x
         cache: 'npm'
-        
+    - name: Setting .env
+      run: |
+        echo "REACT_APP_GOOGLE_CLIENTID=${{ secrets.REACT_APP_GOOGLE_CLIENTID }}" >> .env
+        echo "OPENAI_MODEL=${{ secrets.OPENAI_MODEL }}" >> .env
+        echo "OPENAI_SECRET_KEY_KIM=${{ secrets.OPENAI_SECRET_KEY_KIM }}" >> .env
+        echo "OPENAI_SECRET_KEY_LEE=${{ secrets.OPENAI_SECRET_KEY_LEE }}" >> .env
+        echo "OPENAI_SECRET_KEY_SUA=${{ secrets.OPENAI_SECRET_KEY_SUA }}" >> .env
+        echo "OPENAI_SECRET_KEY_EUN=${{ secrets.OPENAI_SECRET_KEY_EUN }}" >> .env      echo "OPENAI_SECRET_KEY_KIM=${{ secrets.OPENAI_SECRET_KEY_KIM }}" >> .env
+        echo "OPENAI_ORGANIZATION_KEY=${{ secrets.OPENAI_ORGANIZATION_KEY }}" >> .env
+        echo "NUTRITIONIST_SYSTEM_SETUP=${{ secrets.NUTRITIONIST_SYSTEM_SETUP }}" >> .env
+        echo "NUTRITIONIST_USER_SETUP=${{ secrets.NUTRITIONIST_USER_SETUP }}" >> .env      echo "OPENAI_SECRET_KEY_KIM=${{ secrets.OPENAI_SECRET_KEY_KIM }}" >> .env
+        echo "ASSISTANT_SETUP=${{ secrets.ASSISTANT_SETUP }}" >> .env
+        echo "EXTRACTOR_NUTRITIONIST_SETUP=${{ secrets.EXTRACTOR_NUTRITIONIST_SETUP }}" >> .env
+        echo "EXTRACTOR_CHEMIST_SETUP=${{ secrets.EXTRACTOR_CHEMIST_SETUP }}" >> .env
+        echo "CHEMIST_USER_SETUP=${{ secrets.CHEMIST_USER_SETUP }}" >> .env
+        cat .env
+
     - name: Install Backend-Server
       run: npm ci
 
