@@ -20,9 +20,10 @@ jobs:
       with:
         node-version: 18.x
         cache: 'npm'
+        
     - name: Setting .env
       run: |
-        touch .env
+        # .env 파일 생성 및 시크릿 값 설정
         echo "PORT=${{ secrets.PORT }}" >> .env
         echo "OPENAI_MODEL=${{ secrets.OPENAI_MODEL }}" >> .env
         echo "OPENAI_SECRET_KEY_KIM=${{ secrets.OPENAI_SECRET_KEY_KIM }}" >> .env
@@ -46,12 +47,12 @@ jobs:
     - name: Compile Backend-Server
       run: npm run build
 
-          #"node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*" 파일 제외 후 레퍼지토 압축
+    # "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*" 파일 제외 후 레퍼지토리 압축
     - name: Make a zip file
-      run: zip -r ./$GITHUB_SHA.zip . -x "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*"
+      run: zip -r ./$GITHUB_SHA.zip . .env -x "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*"
       shell: bash
 
-    #AWS 자격 증명 수행
+    # AWS 자격 증명 수행
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -59,7 +60,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    # zip파일 S3업로드
+    # zip 파일 S3 업로드
     - name: Upload to S3
       run: aws s3 cp --region ${{ secrets.AWS_REGION }} ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
 
@@ -75,6 +76,6 @@ jobs:
 
 env:
   S3_BUCKET_NAME: kimsoo-bucket # S3 버킷 이름
-  PROJECT_NAME: server-file # S3 버킷 내 폴더 이름 임의로 지정 가능
+  PROJECT_NAME: server-file # S3 버킷 내 폴더 이름 (임의로 설정 가능)
   AWS_CODEDEPLOY_APPLICATION_NAME: code-deploy # CodeDeploy 애플리케이션 이름
   AWS_CODEDEPLOY_DEPLOYMENT_GROUP_NAME: code-deploy-group # CodeDeploy 배포 그룹 이름
