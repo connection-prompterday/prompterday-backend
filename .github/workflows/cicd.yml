@@ -32,13 +32,6 @@ jobs:
       run: zip -r ./$GITHUB_SHA.zip . -x "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*"
       shell: bash
 
-      
-  deploy:
-    needs: build
-    name: Deploy
-    runs-on: ubuntu-latest
-    steps:
-
     #AWS 자격 증명 수행
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
