@@ -13,11 +13,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    
+    - name: Checkout Repository
+      uses: actions/checkout@v3    
+      
     - name: Setup node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v3.8.1
       with:
-        node-version: 16.x
+        node-version: 18.x
         cache: 'npm'
         
     - name: Install Backend-Server
@@ -25,4 +28,9 @@ jobs:
 
     - name: Compile Backend-Server
       run: npm run build
+      
+    #"node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*" 파일 제외 후 레퍼지토 압축
+    - name: Make a zip file
+      run: zip -r ./$GITHUB_SHA.zip . -x "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*"
+      shell: bash
       
