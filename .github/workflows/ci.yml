@@ -11,24 +11,11 @@ on:
 
 jobs:
   test:
-    env:
-      ENV_PATH: .env
     runs-on: ubuntu-latest
     steps:
     
     - name: Checkout Repository
       uses: actions/checkout@v3    
-
-    - name: Create .env file
-      run: |
-            touch ${{ env.ENV_PATH }}
-            echo AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} >> ${{ env.ENV_PATH }}
-            echo AWS_REGION=${{ secrets.AWS_REGION }} >> ${{ env.ENV_PATH }}
-            echo AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} >> ${{ env.ENV_PATH }}
-            echo DEPLOYMENT_GROUP_NAME=${{ secrets.DEPLOYMENT_GROUP_NAME }} >> ${{ env.ENV_PATH }}
-            echo S3_BUCKET_DIR_NAME=${{ secrets.S3_BUCKET_DIR_NAME }} >> ${{ env.ENV_PATH }}
-            echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} >> ${{ env.ENV_PATH }}
-
       
     - name: Setup node.js
       uses: actions/setup-node@v3.8.1
@@ -51,20 +38,20 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
     # zip파일 S3업로드
     - name: Upload to S3
-      run: aws s3 cp --region ${{ env.AWS_REGION }} ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
+      run: aws s3 cp --region ${{ secrets.AWS_REGION }} ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
 
-    # 코드 배포 
-    - name: Deploy to EC2 with CodeDeploy
-      run: aws deploy create-deployment
-          --application-name connection-deploy
-          --deployment-config-name CodeDeployDefault.AllAtOnce
-          --deployment-group-name ${{ env.DEPLOYMENT_GROUP_NAME }}
-          --s3-location bucket=${{ env.S3_BUCKET_NAME }},bundleType=zip,key=${{ secrets.S3_BUCKET_DIR_NAME }}/$GITHUB_SHA.zip
+    # 코드 배포
+    - name: Code Deploy
+      run: aws deploy create-deployment --application-name $AWS_CODEDEPLOY_APPLICATION_NAME --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name $AWS_CODEDEPLOY_DEPLOYMENT_GROUP_NAME --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
 
-
+env:
+  S3_BUCKET_NAME: kimsoo-bucket # S3 버킷 이름
+  PROJECT_NAME: server-file # S3 버킷 내 폴더 이름 임의로 지정 가능
+  AWS_CODEDEPLOY_APPLICATION_NAME: connection-deploy # CodeDeploy 애플리케이션 이름
+  AWS_CODEDEPLOY_DEPLOYMENT_GROUP_NAME: connection-deploy-dev-group # CodeDeploy 배포 그룹 이름
