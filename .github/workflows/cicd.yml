@@ -7,7 +7,8 @@ on:
     branches: [ "develop" ]
 
 jobs:
-  test:
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
     
@@ -25,7 +26,11 @@ jobs:
 
     - name: Compile Backend-Server
       run: npm run build
-      
+  deploy:
+    needs: build
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
     #"node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*" 파일 제외 후 레퍼지토 압축
     - name: Make a zip file
       run: zip -r ./$GITHUB_SHA.zip . -x "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*"
