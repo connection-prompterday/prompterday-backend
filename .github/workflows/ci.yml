@@ -9,6 +9,12 @@ on:
   pull_request:
     branches: [ "develop" ]
 
+env:
+  S3_BUCKET_NAME: kimsoo-bucket # S3 버킷 이름
+  PROJECT_NAME: server-file # S3 버킷 내 폴더 이름 임의로 지정 가능
+  AWS_CODEDEPLOY_APPLICATION_NAME: connection-deploy # CodeDeploy 애플리케이션 이름
+  AWS_CODEDEPLOY_DEPLOYMENT_GROUP_NAME: connection-deploy-dev-group # CodeDeploy 배포 그룹 이름
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -46,9 +52,5 @@ jobs:
     - name: Upload to S3
       run: aws s3 cp --region ${{ secrets.AWS_REGION }} ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
 
-env:
-  S3_BUCKET_NAME: kimsoo-bucket # S3 버킷 이름
-  PROJECT_NAME: server-file # S3 버킷 내 폴더 이름 임의로 지정 가능
-  AWS_CODEDEPLOY_APPLICATION_NAME: connection-deploy # CodeDeploy 애플리케이션 이름입니다.
-  AWS_CODEDEPLOY_DEPLOYMENT_GROUP_NAME: connection-deploy-dev-group # CodeDeploy 배포 그룹 이름입니다.
+
       
