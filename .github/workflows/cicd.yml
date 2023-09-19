@@ -23,7 +23,7 @@ jobs:
     - name: Setting .env
       run: |
         touch .env
-        echo "REACT_APP_GOOGLE_CLIENTID=${{ secrets.REACT_APP_GOOGLE_CLIENTID }}" >> .env
+        echo "PORT=${{ secrets.PORT }}" >> .env
         echo "OPENAI_MODEL=${{ secrets.OPENAI_MODEL }}" >> .env
         echo "OPENAI_SECRET_KEY_KIM=${{ secrets.OPENAI_SECRET_KEY_KIM }}" >> .env
         echo "OPENAI_SECRET_KEY_LEE=${{ secrets.OPENAI_SECRET_KEY_LEE }}" >> .env
