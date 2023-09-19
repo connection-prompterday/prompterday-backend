@@ -54,10 +54,8 @@ jobs:
           --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
           --description "Ignore ApplicationStop failures due to broken script"
 
-
 env:
   S3_BUCKET_NAME: kimsoo-bucket # S3 버킷 이름
   PROJECT_NAME: server-file # S3 버킷 내 폴더 이름 임의로 지정 가능
   AWS_CODEDEPLOY_APPLICATION_NAME: code-deploy # CodeDeploy 애플리케이션 이름
   AWS_CODEDEPLOY_DEPLOYMENT_GROUP_NAME: code-deploy-group # CodeDeploy 배포 그룹 이름
-
