@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cd /home/ubuntu/my-nest-app
+cd /home/ubuntu/backend
 sh scripts/docker-script.sh
