@@ -64,9 +64,7 @@ jobs:
           --application-name $AWS_CODEDEPLOY_APPLICATION_NAME 
           --deployment-config-name CodeDeployDefault.AllAtOnce 
           --deployment-group-name $AWS_CODEDEPLOY_DEPLOYMENT_GROUP_NAME 
-          --ignore-application-stop-failures
           --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
-          --description "Ignore ApplicationStop failures due to broken script"
 
 env:
   S3_BUCKET_NAME: kimsoo-bucket # S3 버킷 이름
