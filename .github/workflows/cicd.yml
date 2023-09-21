@@ -21,7 +21,6 @@ jobs:
         node-version: 18.x
         cache: 'npm'
 
-        
     - name: Setting .env
       run: |
         # .env 파일 생성 및 시크릿 값 설정
