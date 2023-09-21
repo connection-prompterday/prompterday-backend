@@ -19,5 +19,6 @@ COPY . .
 # EC2 내부에서는 해당 이미지를 사용하는 docker container의 3000번 포트에 접근할 수 있습니다.
 EXPOSE 3000
 
+
 # 이미지가 실행되어 docker container가 되는 시점에 실행될 명령어입니다.
 # CMD [ "node", "dist/main" ]
