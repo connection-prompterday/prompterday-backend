@@ -13,7 +13,7 @@ RUN npm ci
 # .dockerignore에 지정되어있는 파일 제외한 모든 파일을 docker container의 /usr/src/app로 복사합니다.
 COPY . .
 
-RUN npm run build
+# RUN npm run build
 
 # docker container의 3000번 포트를 엽니다.
 # EC2 내부에서는 해당 이미지를 사용하는 docker container의 3000번 포트에 접근할 수 있습니다.
