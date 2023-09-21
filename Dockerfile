@@ -4,7 +4,7 @@ FROM node:18-alpine
 WORKDIR /usr/src/app
 
 # .dockerignore에 지정되어있는 파일 제외한 모든 파일을 docker container의 /usr/src/app로 복사합니다.
-COPY . .
+COPY . ./
 
 # 현재 프로젝트의 package.json, package-lock.json을 docker container의 /usr/src/app로 복사합니다.
 # COPY package*.json ./
