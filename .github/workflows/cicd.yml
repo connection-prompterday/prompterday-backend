@@ -20,6 +20,7 @@ jobs:
       with:
         node-version: 18.x
         cache: 'npm'
+
         
     - name: Setting .env
       run: |
