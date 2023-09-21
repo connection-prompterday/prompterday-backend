@@ -20,6 +20,6 @@ RUN npm run build
 EXPOSE 3000
 
 # 이미지가 실행되어 docker container가 되는 시점에 실행될 명령어입니다.
-# CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start:dev"]
 
 
