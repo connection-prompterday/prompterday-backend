@@ -11,7 +11,7 @@ COPY . .
 
 # 이미지 빌드시 실행되는 명령어입니다.
 # 프로덕션을 위한 코드를 빌드하는 경우
-# RUN npm ci
+RUN npm ci
 
 
 # RUN npm run build
