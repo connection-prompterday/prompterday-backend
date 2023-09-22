@@ -21,19 +21,6 @@ jobs:
         node-version: 18.x
         cache: 'npm'
 
-    - name: Setting .env
-      run: |
-        # .env 파일 생성 및 시크릿 값 설정
-        echo "PORT=${{ secrets.PORT }}" >> .env
-        echo "OPENAI_MODEL=${{ secrets.OPENAI_MODEL }}" >> .env
-        echo "OPENAI_SECRET_KEY_KIM=${{ secrets.OPENAI_SECRET_KEY_KIM }}" >> .env
-        echo "OPENAI_SECRET_KEY_LEE=${{ secrets.OPENAI_SECRET_KEY_LEE }}" >> .env
-        echo "OPENAI_SECRET_KEY_SUA=${{ secrets.OPENAI_SECRET_KEY_SUA }}" >> .env
-        echo "OPENAI_SECRET_KEY_EUN=${{ secrets.OPENAI_SECRET_KEY_EUN }}" >> .env      
-        echo "OPENAI_SECRET_KEY_KIM=${{ secrets.OPENAI_SECRET_KEY_KIM }}" >> .env
-        echo "OPENAI_ORGANIZATION_KEY=${{ secrets.OPENAI_ORGANIZATION_KEY }}" >> .env
-    
-        cat .env
 
     - name: Install Backend-Server
       run: npm ci
@@ -47,6 +34,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     # "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*" 파일 제외 후 레퍼지토리 압축
+    - name: Setting .env
+      run: |
+        # .env 파일 생성 및 시크릿 값 설정
+        echo "PORT=${{ secrets.PORT }}" >> .env
+        echo "OPENAI_MODEL=${{ secrets.OPENAI_MODEL }}" >> .env
+        echo "OPENAI_SECRET_KEY_KIM=${{ secrets.OPENAI_SECRET_KEY_KIM }}" >> .env
+        echo "OPENAI_SECRET_KEY_LEE=${{ secrets.OPENAI_SECRET_KEY_LEE }}" >> .env
+        echo "OPENAI_SECRET_KEY_SUA=${{ secrets.OPENAI_SECRET_KEY_SUA }}" >> .env
+        echo "OPENAI_SECRET_KEY_EUN=${{ secrets.OPENAI_SECRET_KEY_EUN }}" >> .env      
+        echo "OPENAI_SECRET_KEY_KIM=${{ secrets.OPENAI_SECRET_KEY_KIM }}" >> .env
+        echo "OPENAI_ORGANIZATION_KEY=${{ secrets.OPENAI_ORGANIZATION_KEY }}" >> .env
+        cat .env
+        
     - name: Make a zip file
       run: zip -r ./$GITHUB_SHA.zip . .env -x "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*"
       shell: bash
