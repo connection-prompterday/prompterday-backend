@@ -1,1 +1,7 @@
 /scripts
+/common
+tsconfig.build.json
+tsconfig.json
+Dockerfile
+appspec.yml
+nest-cli.json
