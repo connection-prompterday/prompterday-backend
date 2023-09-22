@@ -40,7 +40,12 @@ jobs:
 
     - name: Compile Backend-Server
       run: npm run build
-
+      
+  deploy:
+    needs: build
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
     # "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*" 파일 제외 후 레퍼지토리 압축
     - name: Make a zip file
       run: zip -r ./$GITHUB_SHA.zip . .env -x "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*"
