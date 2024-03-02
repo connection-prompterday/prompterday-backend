@@ -1,5 +1,7 @@
 # CONNECTION - Hackathon
 
+![thum](https://github.com/connection-prompterday/prompterday-backend/assets/96464209/b3890f4a-2383-4657-8fa7-4c45d5e553e4)
+
 > ⭐ **주제**
 > 
 - SKT, OpenAI가 주최한 **Generative AI 해커톤 Prompter Day Seoul 2023**
@@ -33,3 +35,4 @@
 - **CI/CD:** Github Action, Docker, CodeDeploy
 
  <br>
+
